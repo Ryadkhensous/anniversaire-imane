@@ -15,7 +15,7 @@
 // =============================================================================
 const AppState = {
   name: "Imane",
-  date: "2026-07-18T20:00:00",
+  date: "2026-11-07T20:00:00",
   theme: "theme-rose",
   isGiftOpen: false,
   candlesBlown: false,
@@ -40,7 +40,6 @@ window.addEventListener('DOMContentLoaded', () => {
   loadSavedConfig();
   initThreeDScene();
   initBackgroundSparkles();
-  initCountdown();
   initCustomizer();
   initMusicPlayer();
   initEventListeners();
@@ -478,6 +477,37 @@ function animate3D() {
   renderer3D.render(scene3D, camera3D);
 }
 
+// Explosion féerique d'émojis flottants
+function launchFloatingEmojis() {
+  const emojis = ['💖', '✨', '🌸', '🎂', '🎉', '💐', '⭐', '🎈'];
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.position = 'fixed';
+    el.style.left = `${45 + (Math.random() - 0.5) * 20}%`;
+    el.style.bottom = '35%';
+    el.style.fontSize = `${Math.random() * 22 + 20}px`;
+    el.style.pointerEvents = 'none';
+    el.style.zIndex = '999';
+    el.style.userSelect = 'none';
+    document.body.appendChild(el);
+
+    if (typeof gsap !== 'undefined') {
+      gsap.to(el, {
+        x: (Math.random() - 0.5) * 360,
+        y: -(Math.random() * 320 + 200),
+        rotation: (Math.random() - 0.5) * 60,
+        opacity: 0,
+        duration: Math.random() * 1.5 + 1.5,
+        ease: 'power2.out',
+        onComplete: () => el.remove()
+      });
+    } else {
+      setTimeout(() => el.remove(), 2500);
+    }
+  }
+}
+
 // =============================================================================
 // ANIMATION D'OUVERTURE DE LA BOÎTE CADEAU
 // =============================================================================
@@ -487,6 +517,7 @@ function triggerOpenGiftAnimation() {
 
   playFanfareSound();
   launchGrandConfettiBurst();
+  launchFloatingEmojis();
 
   if (typeof gsap !== 'undefined' && giftLidGroup) {
     gsap.to(giftLidGroup.position, {
@@ -774,43 +805,6 @@ function launchGrandConfettiBurst() {
 }
 
 // =============================================================================
-// COMPTE À REBOURS DYNAMIQUE
-// =============================================================================
-function initCountdown() {
-  const daysEl = document.getElementById('days');
-  const hoursEl = document.getElementById('hours');
-  const minutesEl = document.getElementById('minutes');
-  const secondsEl = document.getElementById('seconds');
-
-  function update() {
-    const targetDate = new Date(AppState.date).getTime();
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-
-    if (distance < 0) {
-      if (daysEl) daysEl.innerText = '00';
-      if (hoursEl) hoursEl.innerText = '00';
-      if (minutesEl) minutesEl.innerText = '00';
-      if (secondsEl) secondsEl.innerText = '00';
-      return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    if (daysEl) daysEl.innerText = String(days).padStart(2, '0');
-    if (hoursEl) hoursEl.innerText = String(hours).padStart(2, '0');
-    if (minutesEl) minutesEl.innerText = String(minutes).padStart(2, '0');
-    if (secondsEl) secondsEl.innerText = String(seconds).padStart(2, '0');
-  }
-
-  update();
-  setInterval(update, 1000);
-}
-
-// =============================================================================
 // AUDIO SYNTHÉTISÉ (WEB AUDIO API)
 // =============================================================================
 let audioCtx = null;
@@ -849,7 +843,7 @@ function playFanfareSound() {
       osc.start(now + i * 0.08);
       osc.stop(now + i * 0.08 + 0.7);
     });
-  } catch (err) {}
+  } catch (err) { }
 }
 
 function playBlowSound() {
@@ -881,7 +875,7 @@ function playBlowSound() {
 
     noise.start(now);
     noise.stop(now + 0.45);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 // =============================================================================
@@ -928,7 +922,7 @@ function initMusicPlayer() {
           const startOnInteraction = () => {
             bgMusic.play().then(() => {
               updateMusicUI(true);
-            }).catch(() => {});
+            }).catch(() => { });
             window.removeEventListener('click', startOnInteraction);
             window.removeEventListener('touchstart', startOnInteraction);
             window.removeEventListener('scroll', startOnInteraction);
@@ -948,7 +942,7 @@ function initMusicPlayer() {
   musicBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (bgMusic.paused) {
-      bgMusic.play().then(() => updateMusicUI(true)).catch(() => {});
+      bgMusic.play().then(() => updateMusicUI(true)).catch(() => { });
     } else {
       bgMusic.pause();
       updateMusicUI(false);
@@ -1010,6 +1004,14 @@ function updateDOMFromState() {
 
   const revealedGreeting = document.getElementById('revealedGreeting');
   if (revealedGreeting) revealedGreeting.innerText = `Joyeux Anniversaire ! 🎂`;
+
+  const dateBadge = document.getElementById('eventDateBadge');
+  if (dateBadge && AppState.date) {
+    const d = new Date(AppState.date);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formatted = d.toLocaleDateString('fr-FR', options);
+    dateBadge.innerText = `Aujourd'hui • ${formatted.charAt(0).toUpperCase() + formatted.slice(1)} 🎉`;
+  }
 }
 
 function saveConfig() {
@@ -1028,7 +1030,7 @@ function loadSavedConfig() {
       if (data.name && data.name !== "Sarah") AppState.name = data.name;
       if (data.theme && data.theme !== "theme-gold") AppState.theme = data.theme;
       if (data.date) AppState.date = data.date;
-    } catch (e) {}
+    } catch (e) { }
   }
   document.body.className = AppState.theme;
   updateDOMFromState();
@@ -1154,9 +1156,9 @@ function initEventListeners() {
   if (fsBtn) {
     fsBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+        document.documentElement.requestFullscreen().catch(() => { });
       } else {
-        document.exitFullscreen().catch(() => {});
+        document.exitFullscreen().catch(() => { });
       }
     });
   }
