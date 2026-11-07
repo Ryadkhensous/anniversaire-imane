@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joyeux Anniversaire Imane ! ✨</title>
+  
+  <!-- Polices Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Alex+Brush&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Three.js, GSAP & Canvas Confetti -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-rose">
+
+  <!-- Piste Audio : Eva - Anniversaire -->
+  <audio id="bgMusic" src="assets/eva-anniversaire.mp3" preload="auto" loop></audio>
+
+  <!-- Canvas pour les étincelles ambiantes de fond -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Navigation Flottante Épurée -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="sparkle-icon">✨</span>
+      <span class="brand-text">Célébration</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#hero">Accueil</a>
+      <a href="#surprise">Le Cadeau 3D 🎁</a>
+    </nav>
+    <div class="nav-actions">
+      <button id="fullscreenBtn" class="btn-icon" title="Plein écran (pour projection)">
+        <i data-lucide="maximize" id="fullscreenIcon"></i>
+      </button>
+      <button id="shareLinkBtn" class="btn-icon" title="Copier le lien personnalisé">
+        <i data-lucide="share-2"></i>
+      </button>
+      <button id="musicToggleBtn" class="btn-icon" title="Musique : Eva - Anniversaire (Lecture / Pause)">
+        <i data-lucide="volume-2" id="musicIcon"></i>
+      </button>
+      <button id="openCustomizeModal" class="btn-pill" title="Personnaliser les informations">
+        <i data-lucide="sparkles"></i>
+        <span>Personnaliser</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="hero" class="hero-section">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        <span id="eventDateBadge">Samedi 18 Juillet 2026</span>
+      </div>
+
+      <h1 class="hero-title">
+        <span class="cursive-sub">Une journée inoubliable pour</span>
+        <span class="main-name text-gradient" id="heroName">Imane</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Rejoignez-nous pour célébrer ce jour si spécial dans une féerie d'or, d'étincelles et d'animations magiques !
+      </p>
+
+      <!-- Compte à rebours -->
+      <div class="countdown-container">
+        <div class="countdown-card">
+          <span class="countdown-num" id="days">00</span>
+          <span class="countdown-label">Jours</span>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-card">
+          <span class="countdown-num" id="hours">00</span>
+          <span class="countdown-label">Heures</span>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-card">
+          <span class="countdown-num" id="minutes">00</span>
+          <span class="countdown-label">Minutes</span>
+        </div>
+        <div class="countdown-separator">:</div>
+        <div class="countdown-card">
+          <span class="countdown-num" id="seconds">00</span>
+          <span class="countdown-label">Secondes</span>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="hero-cta-group">
+        <a href="#surprise" class="btn btn-primary" id="triggerSurpriseBtn">
+          <span>Ouvrir le Cadeau 3D</span>
+          <i data-lucide="gift"></i>
+        </a>
+        <button id="confettiCannonBtn" class="btn btn-sparkle" title="Lancer une explosion d'étincelles et confettis !">
+          ✨ Pluie d'Étincelles
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Surprise : La Boîte Cadeau 3D & Gâteau Interactif -->
+  <section id="surprise" class="surprise-section">
+    <div class="section-header">
+      <span class="section-tag">Élément 3D Interactif</span>
+      <h2>La Boîte Cadeau Magique</h2>
+      <p>Faites pivoter la boîte en 3D à la souris, puis <strong>cliquez dessus</strong> pour l'ouvrir !</p>
+    </div>
+
+    <div class="gift-interactive-wrapper">
+      <!-- Container 3D WebGL (Three.js) -->
+      <div class="gift-box-container" id="giftBoxContainer">
+        <!-- Rendu dynamique par Three.js -->
+      </div>
+
+      <!-- Ce qui apparaît après déballage : Vœux & Bougies -->
+      <div class="revealed-cake-container hidden" id="cakeContainer">
+        <div class="cake-visual">
+          <div class="candles-wrapper">
+            <div class="candle">
+              <div class="flame" id="flame1"></div>
+              <div class="wick"></div>
+              <div class="stick"></div>
+            </div>
+            <div class="candle">
+              <div class="flame" id="flame2"></div>
+              <div class="wick"></div>
+              <div class="stick"></div>
+            </div>
+            <div class="candle">
+              <div class="flame" id="flame3"></div>
+              <div class="wick"></div>
+              <div class="stick"></div>
+            </div>
+          </div>
+          <div class="cake-tier cake-tier-top">
+            <div class="frosting"></div>
+          </div>
+          <div class="cake-tier cake-tier-middle"></div>
+          <div class="cake-tier cake-tier-bottom"></div>
+          <div class="cake-plate"></div>
+        </div>
+
+        <div class="revealed-message">
+          <h3 id="revealedGreeting">Joyeux Anniversaire ! 🎂</h3>
+          <p id="secretBirthdayWish">
+            « Que cette nouvelle année t'apporte son lot de bonheurs infinis, d'amour, de rires et de projets grandioses entourée de tous ceux qui t'aiment ! »
+          </p>
+
+          <div class="cake-actions">
+            <button class="btn btn-warning" id="blowCandlesBtn">
+              <i data-lucide="wind"></i>
+              <span>Souffler les bougies !</span>
+            </button>
+            <button class="btn btn-glass" id="micBlowBtn" title="Soufflez dans votre microphone pour éteindre la bougie !">
+              <i data-lucide="mic"></i>
+              <span id="micBlowText">Souffler au micro 🎙️</span>
+            </button>
+            <button class="btn btn-glass" id="resetGiftBtn">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Refermer la boîte 3D</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pied de page -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <span class="sparkle">✨</span>
+        <span id="footerText">Célébration pour Imane</span>
+      </div>
+      <p class="footer-note">Créé avec amour pour un anniversaire inoubliable.</p>
+    </div>
+  </footer>
+
+  <!-- Modal de Personnalisation en Direct -->
+  <div class="modal-overlay hidden" id="customizeModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i data-lucide="sliders"></i> Personnaliser le Site</h3>
+        <button class="modal-close" id="closeCustomizeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="inputPersonName">Prénom de la personne fêtée</label>
+          <input type="text" id="inputPersonName" value="Imane">
+        </div>
+
+        <div class="form-group">
+          <label for="inputEventDate">Date de l'anniversaire</label>
+          <input type="date" id="inputEventDate">
+        </div>
+
+        <div class="form-group">
+          <label>Ambiance / Thème de couleur</label>
+          <div class="theme-selector">
+            <button class="theme-btn gold" data-theme="theme-gold">
+              <span class="color-preview gold-grad"></span>
+              Or & Sombre
+            </button>
+            <button class="theme-btn rose active" data-theme="theme-rose">
+              <span class="color-preview rose-grad"></span>
+              Rose & Magenta
+            </button>
+            <button class="theme-btn cyber" data-theme="theme-cyber">
+              <span class="color-preview cyber-grad"></span>
+              Néon & Électro
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-block" id="applyCustomizeBtn">
+          <span>Enregistrer les changements</span>
+          <i data-lucide="check"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="toast hidden">
+    <i data-lucide="check"></i>
+    <span id="toastMessage">Lien copié dans le presse-papiers !</span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
